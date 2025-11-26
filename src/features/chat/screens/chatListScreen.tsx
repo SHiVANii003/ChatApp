@@ -1,34 +1,67 @@
-import React, { useState } from "react";
-import { FlatList } from "react-native";
-import Header from "../../../components/layout/header";
+import React, { useCallback, useState } from "react";
+import { FlatList, RefreshControl, StyleSheet, View } from "react-native";
 import Layout from "../../../components/layout/layout";
-import SearchBar from "../../../components/searchbar";
-import ChatRow, { ChatItemType } from "../components/chatRow";
+import ChatRow from "../components/chatRow";
+import { Chat } from "../type";
+import SAMPLE_CHATS from "../services/chatListData";
 
 
 export default function ChatListScreen() {
-    const [search, setSearch] = useState("");
+    // keep data in state so we can mutate (mark read, reorder) for UI demo
+    const [chats, setChats] = useState<Chat[]>(SAMPLE_CHATS);
+    const [refreshing, setRefreshing] = useState(false);
 
-    const chats: ChatItemType[] = [
-        { id: "1", name: "Shivani Prajapati", lastMessage: "Hey! What's up?", time: "09:22", unread: 2 },
-        { id: "2", name: "Mom", lastMessage: "Come home early.", time: "Yesterday" },
-        { id: "3", name: "Project Team", lastMessage: "Meeting moved to 4 PM.", time: "Sun" },
-        { id: "4", name: "Aman", lastMessage: "I'll call tonight.", time: "08:12" },
-    ];
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        // simulate network refresh
+        setTimeout(() => {
+            setChats((prev) => {
+                if (prev.length === 0) return prev;
+                const copy = prev.slice();
+                // rotate list for visible change
+                const first = copy.shift()!;
+                copy.push(first);
+                return copy;
+            });
+            setRefreshing(false);
+        }, 800);
+    }, []);
 
-    const filtered = chats.filter((c) =>
-        c.name.toLowerCase().includes(search.toLowerCase()) || c.lastMessage.toLowerCase().includes(search.toLowerCase())
-    );
+    const openChat = useCallback((item: Chat) => {
+        console.log("Open chat:", item.id, item.name);
+        // example: mark as read on open
+        setChats((prev) => prev.map((c) => (c.id === item.id ? { ...c, unread: 0 } : c)));
+    }, []);
 
     return (
-        <Layout header={<Header title="OneInbox" />} scrollable={false} stickyFooter={false}>
-            <SearchBar value={search} onChange={setSearch} placeholder="Search chats" />
-
-            <FlatList
-                data={filtered}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => <ChatRow item={item} onPress={() => console.log("Open", item.name)} />}
-            />
+        <Layout scrollable={false} stickyFooter={false}>
+            {/* optional header is handled at App root — Layout just provides content area */}
+            <View style={styles.container}>
+                <FlatList
+                    data={chats}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }) => (
+                        <ChatRow
+                            item={item}
+                            onPress={() => openChat(item)}
+                            onLongPress={() => console.log("Long press", item.id)}
+                        />
+                    )}
+                    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                    contentContainerStyle={chats.length === 0 ? { flex: 1 } : { paddingBottom: 120 }}
+                    ListEmptyComponent={<View style={styles.empty} />}
+                />
+            </View>
         </Layout>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: "#fff",
+    },
+    empty: {
+        flex: 1,
+    },
+});

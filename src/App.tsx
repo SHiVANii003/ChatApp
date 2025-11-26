@@ -4,7 +4,7 @@ import { StatusBar } from "react-native";
 import Header from "./components/layout/header";
 import Drawer from "./components/drawer";
 import SearchBar from "./components/searchbar";
-// import ChatListScreen from "./features/chat/screens/chatListScreen";
+import ChatListScreen from "./features/chat/screens/chatListScreen";
 
 
 export default function App() {
@@ -30,7 +30,7 @@ export default function App() {
         onFilterSelect={(id) => console.log("filter selected", id)}
       />
 
-      {/* <ChatListScreen /> */}
+      <ChatListScreen />
 
       <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} items={drawerItems} />
       {/* <FilterModal visible={filterOpen} onClose={closeFilter} /> */}
