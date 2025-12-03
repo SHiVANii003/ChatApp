@@ -105,7 +105,6 @@ export default function SearchBar({
 const styles = StyleSheet.create({
     wrapper: {
         width: "100%",
-        paddingHorizontal: 16,
         paddingVertical: 10,
         backgroundColor: "#fff",
 
@@ -114,8 +113,10 @@ const styles = StyleSheet.create({
     row: {
         width: "100%",
         flexDirection: "row",
-        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 8
     },
+
 
     /* -------- LIGHT MODE SEARCH PILL -------- */
     searchBox: {

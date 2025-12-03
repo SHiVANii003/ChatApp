@@ -75,7 +75,6 @@ export default function ChatRow({ item, onPress, onLongPress }: Props) {
                         </Text>
                     </View>
                 ) : (
-                    // optional small indicator for muted/pinned etc (keeps layout stable)
                     <View style={styles.emptySpace} />
                 )}
             </View>
